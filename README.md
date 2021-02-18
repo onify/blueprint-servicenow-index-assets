@@ -13,9 +13,9 @@
 
 ## Included
 
-3 x Settings
-2 x Resources
-1 x Flows
+* 3 x Settings
+* 2 x Resources
+* 1 x Flows
 
 ## Setup
 
