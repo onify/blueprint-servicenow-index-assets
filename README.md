@@ -40,7 +40,7 @@ curl -X POST "<ONIFY-HUB-API-URL>/api/v2/admin/config/settings?refresh=false" -H
 curl -X POST "<ONIFY-HUB-API-URL>/api/v2/admin/config/settings?refresh=false" -H "accept: application/json" -H "authorization: <AUTH-TOKEN>" -H "Content-Type: application/json" -d "{ \"key\": \"_servicenow_username\", \"name\": \"ServiceNow username\", \"value\": \"<SERVICENOW-USERNAME>\", \"type\": \"string\", \"tag\": [ \"servicenow\" ] }"
 ```
 
-### Add setting for ServiceNow password
+#### Add setting for ServiceNow password
 
 ```bash
 curl -X POST "<ONIFY-HUB-API-URL>/api/v2/admin/config/settings?refresh=false" -H "accept: application/json" -H "authorization: <AUTH-TOKEN>" -H "Content-Type: application/json" -d " { \"key\": \"_servicenow_password\", \"name\": \"ServiceNow password\", \"value\": \"<SERVICENOW-PASSWORD>/api/now\", \"type\": \"password\", \"tag\": [ \"servicenow\" ], \"category\": \"custom\" }"
@@ -49,7 +49,7 @@ curl -X POST "<ONIFY-HUB-API-URL>/api/v2/admin/config/settings?refresh=false" -H
 ### Resources
 
 1. Copy files to resources
-2. Modifiy `transform_item.js` and make custom changes to item transformation 
+2. Modifiy `transform_item.js` and make custom changes to item transformation (optional)
 
 ### Flows
 
