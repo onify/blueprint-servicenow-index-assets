@@ -8,7 +8,8 @@
 
 * Onify Hub v2
 * Onify Flow license
-* Curl command
+* Camunda Modeler 4.4 or later 
+* Curl command (maybe)
 * ServiceNow (dah :-)
 
 ## Included
