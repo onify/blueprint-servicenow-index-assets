@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1m70y72" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.5.0">
+  <bpmn:process id="index_servicenow_assets" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="Start full index">
+      <bpmn:outgoing>Flow_06q3881</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="getServiceNowAssets" name="Get Assets from ServiceNow">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="headers">
+              <camunda:script scriptFormat="javascript" resource="/scripts/servicenow/auth_servicenow.js" />
+            </camunda:inputParameter>
+            <camunda:inputParameter name="responseType">json</camunda:inputParameter>
+            <camunda:inputParameter name="url">${environment.output.serviceNowSettings._servicenow_url}/table/alm_asset?sysparm_display_value=all&amp;sysparm_limit=1000&amp;sysparm_offset=${environment.output.serviceNowOffset}</camunda:inputParameter>
+            <camunda:outputParameter name="totalCount">${headers.x-total-count}</camunda:outputParameter>
+            <camunda:outputParameter name="records">${body.result}</camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>httpRequest</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0bxzpbc</bpmn:incoming>
+      <bpmn:incoming>Flow_064ehbk</bpmn:incoming>
+      <bpmn:outgoing>Flow_1bsib1s</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Event_07hul8z" name="End">
+      <bpmn:incoming>Flow_0czkb2q</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1bsib1s" sourceRef="getServiceNowAssets" targetRef="Activity_1xzvvuh" />
+    <bpmn:exclusiveGateway id="Gateway_1gwz6uw" name="More records" default="Flow_0czkb2q">
+      <bpmn:incoming>Flow_1pgsmw2</bpmn:incoming>
+      <bpmn:outgoing>Flow_0czkb2q</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0bxzpbc</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0czkb2q" name="No" sourceRef="Gateway_1gwz6uw" targetRef="Event_07hul8z" />
+    <bpmn:sequenceFlow id="Flow_0bxzpbc" name="Yes" sourceRef="Gateway_1gwz6uw" targetRef="getServiceNowAssets">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="javascript">environment.output.serviceNowOffset = parseInt(environment.output.serviceNowOffset) + 1000;
+console.log(environment.output.serviceNowOffset);
+
+next(null, environment.output._getServiceNowAssets.records &amp;&amp; environment.output._getServiceNowAssets.records.length &gt; 0);
+
+</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:scriptTask id="Activity_1xzvvuh" name="Transform" scriptFormat="javascript" camunda:resultVariable="assetItems" camunda:resource="scripts/servicenow/transform_servicenow_asset.js">
+      <bpmn:incoming>Flow_1bsib1s</bpmn:incoming>
+      <bpmn:outgoing>Flow_0bu9wce</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:serviceTask id="Activity_0vwmzu6" name="Bulk index items">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="payload">${environment.output.assetItems}</camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="url">/admin/bulk/items</camunda:inputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>onifyApiRequest</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0bu9wce</bpmn:incoming>
+      <bpmn:outgoing>Flow_1pgsmw2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1pgsmw2" sourceRef="Activity_0vwmzu6" targetRef="Gateway_1gwz6uw" />
+    <bpmn:sequenceFlow id="Flow_0bu9wce" sourceRef="Activity_1xzvvuh" targetRef="Activity_0vwmzu6" />
+    <bpmn:sequenceFlow id="Flow_06q3881" sourceRef="StartEvent_1" targetRef="Activity_00qst75" />
+    <bpmn:serviceTask id="Activity_00qst75" name="Get ServiceNow settings">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="query">
+              <camunda:map>
+                <camunda:entry key="tag">servicenow</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="url">/my/config/settings</camunda:inputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>onifyApiRequest</camunda:connectorId>
+        </camunda:connector>
+        <camunda:inputOutput>
+          <camunda:outputParameter name="serviceNowOffset">0</camunda:outputParameter>
+          <camunda:outputParameter name="serviceNowSettings">${content.output.body}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_06q3881</bpmn:incoming>
+      <bpmn:outgoing>Flow_064ehbk</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_064ehbk" sourceRef="Activity_00qst75" targetRef="getServiceNowAssets" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="index_servicenow_assets">
+      <bpmndi:BPMNEdge id="Flow_0bu9wce_di" bpmnElement="Flow_0bu9wce">
+        <di:waypoint x="650" y="197" />
+        <di:waypoint x="710" y="197" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1pgsmw2_di" bpmnElement="Flow_1pgsmw2">
+        <di:waypoint x="810" y="197" />
+        <di:waypoint x="892" y="197" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0bxzpbc_di" bpmnElement="Flow_0bxzpbc">
+        <di:waypoint x="917" y="172" />
+        <di:waypoint x="917" y="80" />
+        <di:waypoint x="433" y="80" />
+        <di:waypoint x="433" y="157" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="881" y="103" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1bsib1s_di" bpmnElement="Flow_1bsib1s">
+        <di:waypoint x="483" y="197" />
+        <di:waypoint x="550" y="197" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06q3881_di" bpmnElement="Flow_06q3881">
+        <di:waypoint x="188" y="197" />
+        <di:waypoint x="230" y="197" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0czkb2q_di" bpmnElement="Flow_0czkb2q">
+        <di:waypoint x="942" y="197" />
+        <di:waypoint x="1022" y="197" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="972" y="179" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_064ehbk_di" bpmnElement="Flow_064ehbk">
+        <di:waypoint x="330" y="197" />
+        <di:waypoint x="383" y="197" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_1e9gdqa_di" bpmnElement="Activity_1xzvvuh">
+        <dc:Bounds x="550" y="157" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0vwmzu6_di" bpmnElement="Activity_0vwmzu6">
+        <dc:Bounds x="710" y="157" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1lh37vf_di" bpmnElement="getServiceNowAssets">
+        <dc:Bounds x="383" y="157" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="179" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="136" y="222" width="71" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1gwz6uw_di" bpmnElement="Gateway_1gwz6uw" isMarkerVisible="true">
+        <dc:Bounds x="892" y="172" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="884" y="229" width="66" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_07hul8z_di" bpmnElement="Event_07hul8z">
+        <dc:Bounds x="1022" y="179" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1030" y="222" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_00qst75_di" bpmnElement="Activity_00qst75">
+        <dc:Bounds x="230" y="157" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
