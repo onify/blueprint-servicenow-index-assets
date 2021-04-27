@@ -1,6 +1,10 @@
-# Onify Blueprint: Indexing Assets from ServiceNow
+![Onify Blueprints](https://files.readme.io/8ba3f14-onify-blueprints-logo.png)
 
 [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
+
+# Onify Blueprint: Indexing Assets from ServiceNow
+
+In this Blueprint we show how easy it is to connect to ServiceNow API and read information, in this case assets. Then we index the assets from ServiceNow to Onify using our bulk index endpoint. This is how easy we can integrate with a REST-API. We can also index anything from ServiceNow like tickets, services, CI's etc. It is just a matter of changing the endpoint for ServiceNow API :)
 
 ![alt text](flow.png "Flow")
 
