@@ -6,7 +6,7 @@
 
 In this Blueprint we show how easy it is to connect to ServiceNow API and read information, in this case assets. Then we index the assets from ServiceNow to Onify using our bulk index endpoint. This is how easy we can integrate with a REST-API. We can also index anything from ServiceNow like tickets, services, CI's etc. It is just a matter of changing the endpoint for ServiceNow API :)
 
-![alt text](flow.png "Flow")
+![Onify Blueprint: Indexing Assets from ServiceNow](blueprint.jpg "Blueprint")
 
 ## Requirements
 
