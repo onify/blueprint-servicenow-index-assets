@@ -19,7 +19,7 @@
           <camunda:connectorId>httpRequest</camunda:connectorId>
         </camunda:connector>
         <camunda:inputOutput>
-          <camunda:outputParameter name="getServiceNowAssets">${conten.output.body}</camunda:outputParameter>
+          <camunda:outputParameter name="getServiceNowAssets">${content.output.body}</camunda:outputParameter>
         </camunda:inputOutput>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0bxzpbc</bpmn:incoming>
