@@ -1,5 +1,5 @@
 const itemAssets = [];
-environment.output._getServiceNowAssets.records.forEach(async function(snAsset) {
+environment.output.getServiceNowAssets.records.forEach(async function(snAsset) {
     const itemAsset = {
         type: "asset",
         key: snAsset.sys_id.value,
